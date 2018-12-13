@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import TodoRow2 from '../components/TodoRow2';
+import TodoRow2 from '../components/TodoRow';
 
 class TodoHome extends Component {
   state = {
