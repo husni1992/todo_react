@@ -8,6 +8,14 @@ class TodoRow2 extends Component {
     item: this.props.item,
   };
 
+  componentDidMount() {
+    if (this.props.item.isNew === true) {
+      this.setState({
+        isEditable: true,
+      });
+    }
+  }
+
   getRandomColor = () => {
     const letters = '0123456789ABCDEF';
     let color = '#';
@@ -24,6 +32,9 @@ class TodoRow2 extends Component {
   };
 
   cancelChanges = () => {
+    if (this.state.item.isNew) {
+      this.props.removeNewElement();
+    }
     this.setState({
       item: this.props.item,
       isEditable: false,
@@ -31,7 +42,25 @@ class TodoRow2 extends Component {
   };
 
   saveChanges = () => {
-    if (!this.state.item.value || this.state.item.value === this.props.item.value) return;
+    if (!this.state.item.value) {
+      alert('Cannot be empty!');
+      if (this.props.item.isNew === true) {
+        return;
+      }
+    }
+
+    if (this.props.item.isNew === true) {
+      this.props.onSaveNew(this.state.item);
+      return;
+    }
+
+    if (this.state.item.value === this.props.item.value) {
+      this.setState({
+        isEditable: false,
+      });
+      return;
+    }
+
     this.props.saveChanges(this.state.item, () => {
       this.setState({
         isEditable: false,
