@@ -1,31 +1,19 @@
 import React, { Component } from 'react';
-import TodoRow2 from '../components/TodoRow';
+import TodoRow from '../components/TodoRow';
+import Api from '../services/Api';
 
 class TodoHome extends Component {
   state = {
-    todoList: [
-      {
-        id: 1,
-        value: 'Todo 1',
-        timeStamp: new Date(),
-      },
-      {
-        id: 2,
-        value: 'Todo 2',
-        timeStamp: new Date(),
-      },
-      {
-        id: 3,
-        value: 'Todo 3',
-        timeStamp: new Date(),
-      },
-      {
-        id: 4,
-        value: 'Todo 4',
-        timeStamp: new Date(),
-      },
-    ],
+    todoList: [],
   };
+
+  componentWillMount() {
+    Api.getAllTodos().then(todoList => {
+      this.setState({
+        todoList,
+      });
+    });
+  }
 
   saveChanges = (newVal, callback) => {
     function findFirstLargeNumber(element) {
@@ -44,10 +32,13 @@ class TodoHome extends Component {
     });
   };
 
-  createTodoList = () => {
+  renderTodos = () => {
+    if (this.state.todoList.length === 0) {
+      return <div style={{ fontSize: 17 }}>No Data</div>;
+    }
     return this.state.todoList.map(item => (
-      <TodoRow2
-        key={item.id}
+      <TodoRow
+        key={item._id}
         item={item}
         saveChanges={this.saveChanges}
         removeNewElement={this.removeNewElement}
@@ -57,12 +48,20 @@ class TodoHome extends Component {
   };
 
   onSaveNew = item => {
-    // make server call
+    Api.addTodo(item).then(result => {
+      if (this.state.todoList[this.state.todoList.length - 1].isNew === true) {
+        this.state.todoList.splice(this.state.todoList.length - 1, 1);
+      }
+      this.state.todoList.push(result.data);
+      this.setState({
+        todoList: this.state.todoList,
+      });
+    });
   };
 
   onAddNew = () => {
     this.state.todoList.push({
-      id: `new${Math.random()}`,
+      _id: `new${Math.random()}`,
       isNew: true,
     });
     this.setState({
@@ -70,25 +69,33 @@ class TodoHome extends Component {
     });
   };
 
+  renderAddButton = () => {
+    if (
+      this.state.todoList.length === 0 ||
+      (this.state.todoList.length && !this.state.todoList[this.state.todoList.length - 1].isNew)
+    ) {
+      return (
+        <button
+          className="btn btn-primary"
+          onClick={this.onAddNew}
+          style={{
+            height: 45,
+            width: 170,
+            borderRadius: 40,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          + Add a new task
+        </button>
+      );
+    }
+  };
   render() {
     return (
       <div>
-        <div className="Container">{this.createTodoList()}</div>
-        {!this.state.todoList[this.state.todoList.length - 1].isNew && (
-          <button
-            className="btn btn-primary"
-            onClick={this.onAddNew}
-            style={{
-              height: 45,
-              width: 170,
-              borderRadius: 40,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            + Add a new task
-          </button>
-        )}
+        <div style={{ marginBottom: 10 }}>{this.renderTodos()}</div>
+        <div>{this.renderAddButton()}</div>
       </div>
     );
   }

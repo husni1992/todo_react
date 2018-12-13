@@ -10,9 +10,14 @@ class TodoRow2 extends Component {
 
   componentDidMount() {
     if (this.props.item.isNew === true) {
-      this.setState({
-        isEditable: true,
-      });
+      this.setState(
+        {
+          isEditable: true,
+        },
+        () => {
+          this.nameInput.focus();
+        },
+      );
     }
   }
 
@@ -26,9 +31,14 @@ class TodoRow2 extends Component {
   };
 
   makeEditable = () => {
-    this.setState({
-      isEditable: true,
-    });
+    this.setState(
+      {
+        isEditable: true,
+      },
+      () => {
+        this.nameInput.focus();
+      },
+    );
   };
 
   cancelChanges = () => {
@@ -84,6 +94,9 @@ class TodoRow2 extends Component {
       elem = (
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <input
+            ref={input => {
+              this.nameInput = input;
+            }}
             onChange={this.handleChange}
             onKeyDown={this.handleKeyDown}
             style={{
