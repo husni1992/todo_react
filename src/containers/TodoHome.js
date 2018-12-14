@@ -1,28 +1,39 @@
 import React, { Component } from 'react';
 import TodoRow from '../components/TodoRow';
 import Api from '../services/Api';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 class TodoHome extends Component {
   state = {
     todoList: [],
+    isLoading: false,
   };
 
   componentWillMount() {
+    this.setState({
+      isLoading: true,
+    });
     Api.getAllTodos().then(todoList => {
       this.setState({
         todoList,
+        isLoading: false,
       });
     });
   }
 
-  saveChanges = (newVal, callback) => {
-    function findFirstLargeNumber(element) {
-      return element.id === newVal.id;
-    }
-
-    const itemInd = this.state.todoList.findIndex(findFirstLargeNumber);
-    this.state.todoList.splice(itemInd, 1, newVal);
-    this.setState({}, callback);
+  saveChanges = (updatedTodo, callback) => {
+    Api.updateTodo(updatedTodo)
+      .then(result => {
+        function findFirstLargeNumber(localTodo) {
+          return localTodo._id === result.data._id;
+        }
+        const itemInd = this.state.todoList.findIndex(findFirstLargeNumber);
+        this.state.todoList.splice(itemInd, 1, result.data);
+        this.setState({}, callback);
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
   };
 
   removeNewElement = () => {
@@ -33,7 +44,7 @@ class TodoHome extends Component {
   };
 
   renderTodos = () => {
-    if (this.state.todoList.length === 0) {
+    if (this.state.todoList.length === 0 && this.state.isLoading === false) {
       return <div style={{ fontSize: 17 }}>No Data</div>;
     }
     return this.state.todoList.map(item => (
@@ -71,7 +82,7 @@ class TodoHome extends Component {
 
   renderAddButton = () => {
     if (
-      this.state.todoList.length === 0 ||
+      (this.state.isLoading === false && this.state.todoList.length === 0) ||
       (this.state.todoList.length && !this.state.todoList[this.state.todoList.length - 1].isNew)
     ) {
       return (
@@ -91,11 +102,19 @@ class TodoHome extends Component {
       );
     }
   };
+
+  renderLoader = () => {
+    if (this.state.isLoading === true) {
+      return <LoadingSpinner />;
+    }
+  };
+
   render() {
     return (
       <div>
         <div style={{ marginBottom: 10 }}>{this.renderTodos()}</div>
         <div>{this.renderAddButton()}</div>
+        <div>{this.renderLoader()}</div>
       </div>
     );
   }

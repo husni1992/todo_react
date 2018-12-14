@@ -1,43 +1,53 @@
 import constants from '../config/Constants';
 
+const sendFetch = (url, options = {}) => {
+  console.info(`Request sent > url: ${url}, oprions: ${JSON.stringify(options)}`);
+  return fetch(url, options).then(response => {
+    if (!response.ok) {
+      throw Error(response.statusText);
+    }
+    return response.json();
+  });
+};
+
 function getAllTodos() {
-  return fetch(constants.getAll).then(response => response.json());
+  return sendFetch(constants.getAll);
 }
 
 function getTodo(id) {
-  return fetch(`${constants.get}/${id}`).then(response => response.json());
+  return sendFetch(`${constants.get}/${id}`);
 }
 
 function addTodo(todo) {
-  return fetch(`${constants.addTodo}`, {
+  return sendFetch(constants.addTodo, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(todo),
-  }).then(response => response.json());
+  });
 }
 
-function updateTodo(id, updatedTodo) {
-  return fetch(`${constants.updateTodo}/${id}`, {
+function updateTodo(updatedTodo) {
+  return sendFetch(constants.updateTodo, {
     method: 'PUT',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(updatedTodo),
-  }).then(response => response.json());
+  });
 }
 
 function deleteTodo(id) {
-  return fetch(`${constants.deleteTodo}/${id}`, {
+  return sendFetch(`${constants.deleteTodo}/${id}`, {
     method: 'DELETE',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-  }).then(response => response.json());
+  });
 }
 
 const publicApi = {
