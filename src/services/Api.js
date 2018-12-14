@@ -1,25 +1,24 @@
 import constants from '../config/Constants';
 
-const sendFetch = (url, options = {}) => {
+const request = async (url, options = {}) => {
   console.info(`Request sent > url: ${url}, oprions: ${JSON.stringify(options)}`);
-  return fetch(url, options).then(response => {
-    if (!response.ok) {
-      throw Error(response.statusText);
-    }
-    return response.json();
-  });
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw Error(response.statusText);
+  }
+  return response.json();
 };
 
 function getAllTodos() {
-  return sendFetch(constants.getAll);
+  return request(constants.getAll);
 }
 
 function getTodo(id) {
-  return sendFetch(`${constants.get}/${id}`);
+  return request(`${constants.get}/${id}`);
 }
 
 function addTodo(todo) {
-  return sendFetch(constants.addTodo, {
+  return request(constants.addTodo, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -30,7 +29,7 @@ function addTodo(todo) {
 }
 
 function updateTodo(updatedTodo) {
-  return sendFetch(constants.updateTodo, {
+  return request(constants.updateTodo, {
     method: 'PUT',
     headers: {
       Accept: 'application/json',
@@ -41,7 +40,7 @@ function updateTodo(updatedTodo) {
 }
 
 function deleteTodo(id) {
-  return sendFetch(`${constants.deleteTodo}/${id}`, {
+  return request(`${constants.deleteTodo}/${id}`, {
     method: 'DELETE',
     headers: {
       Accept: 'application/json',
